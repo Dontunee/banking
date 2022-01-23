@@ -5,6 +5,8 @@ import (
 	"encoding/xml"
 	"fmt"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 //Create customer structure and marshal to jsaon
@@ -32,4 +34,14 @@ func getAllCustomers(w http.ResponseWriter, request *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(customers)
 
+}
+
+func getCustomerById(response http.ResponseWriter, request *http.Request) {
+	vars := mux.Vars(request)
+
+	fmt.Fprint(response, vars["getCustomerById"])
+}
+
+func createCustomer(response http.ResponseWriter, request *http.Request) {
+	fmt.Fprint(response, "post request received")
 }
