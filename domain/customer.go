@@ -3,11 +3,11 @@ package domain
 import "github.com/Dontunee/banking/errs"
 
 type Customer struct {
-	ID          int
+	ID          int `db:"customer_id"`
 	Name        string
 	City        string
 	ZipCode     string
-	DateOfBirth string
+	DateOfBirth string `db:"date_of_birth"`
 	Status      bool
 }
 
