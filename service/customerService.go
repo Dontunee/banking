@@ -1,10 +1,14 @@
 package service
 
-import "github.com/Dontunee/banking/domain"
+import (
+	"github.com/Dontunee/banking/domain"
+	"github.com/Dontunee/banking/errs"
+)
 
 type ICustomerService interface {
-	GetAllCustomer() ([]domain.Customer, error)
-	GetCustomerById(id string) (*domain.Customer, error)
+	GetAllCustomer() ([]domain.Customer, *errs.AppError)
+	GetCustomerById(id string) (*domain.Customer, *errs.AppError)
+	GetCustomersByStatus(status bool) ([]domain.Customer, *errs.AppError)
 }
 
 type CustomerService struct {
@@ -13,12 +17,16 @@ type CustomerService struct {
 
 //method in Customer Service class/struct
 
-func (customerService CustomerService) GetAllCustomer() ([]domain.Customer, error) {
+func (customerService CustomerService) GetAllCustomer() ([]domain.Customer, *errs.AppError) {
 	return customerService.repo.FindAll()
 }
 
-func (customerService CustomerService) GetCustomerById(id string) (*domain.Customer, error) {
+func (customerService CustomerService) GetCustomerById(id string) (*domain.Customer, *errs.AppError) {
 	return customerService.repo.FindCustomerById(id)
+}
+
+func (customerService CustomerService) GetCustomersByStatus(status bool) ([]domain.Customer, *errs.AppError) {
+	return customerService.repo.FindCustomersByStatus(status)
 }
 
 //constructor method to initiate CustomerService class/struct

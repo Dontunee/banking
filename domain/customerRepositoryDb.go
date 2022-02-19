@@ -2,8 +2,9 @@ package domain
 
 import (
 	"database/sql"
+	"github.com/Dontunee/banking/errs"
+	"github.com/Dontunee/banking/logger"
 	_ "github.com/go-sql-driver/mysql"
-	"log"
 	"time"
 )
 
@@ -11,12 +12,12 @@ type CustomerRepositoryDb struct {
 	client *sql.DB
 }
 
-func (repository CustomerRepositoryDb) FindAll() ([]Customer, error) {
+func (repository CustomerRepositoryDb) FindAll() ([]Customer, *errs.AppError) {
 	findAllSql := "select customer_id, name, city, zipcode, date_of_birth,status from customers"
 
 	rows, err := repository.client.Query(findAllSql)
 	if err != nil {
-		log.Println("Error occurred while querying customer table" + err.Error())
+		logger.Error("Error occurred while querying customer table" + err.Error())
 	}
 
 	customers := make([]Customer, 0)
@@ -24,8 +25,8 @@ func (repository CustomerRepositoryDb) FindAll() ([]Customer, error) {
 		var customer Customer
 		err := rows.Scan(&customer.ID, &customer.Name, &customer.City, &customer.ZipCode, &customer.DateOfBirth, &customer.Status)
 		if err != nil {
-			log.Println("Error occurred while scanning customers" + err.Error())
-			return nil, err
+			logger.Error("Error occurred while scanning customers" + err.Error())
+			return nil, errs.NewNotFoundError("Customers not found")
 		}
 
 		customers = append(customers, customer)
@@ -34,18 +35,44 @@ func (repository CustomerRepositoryDb) FindAll() ([]Customer, error) {
 	return customers, nil
 }
 
-func (repository CustomerRepositoryDb) FindCustomerById(id string) (*Customer, error) {
+func (repository CustomerRepositoryDb) FindCustomerById(id string) (*Customer, *errs.AppError) {
 	customerSql := "select customer_id, name, city, zipcode, date_of_birth,status from customers where customer_id = ?"
 
 	row := repository.client.QueryRow(customerSql, id)
 	var customer Customer
 	err := row.Scan(&customer.ID, &customer.Name, &customer.City, &customer.ZipCode, &customer.DateOfBirth, &customer.Status)
 	if err != nil {
-		log.Println("Error occurred while scanning customer" + err.Error())
-		return nil, err
+		logger.Error("Error occurred while scanning customer" + err.Error())
+		if err == sql.ErrNoRows {
+			return nil, errs.NewNotFoundError("Customer not found")
+		} else {
+			return nil, errs.NewUnexpectedError("Unexpected database error ")
+		}
 	}
 	return &customer, nil
 
+}
+
+func (repository CustomerRepositoryDb) FindCustomersByStatus(status bool) ([]Customer, *errs.AppError) {
+	customersSql := "select customer_id, name, city, zipcode, date_of_birth, status from customers where status = ?"
+
+	rows, err := repository.client.Query(customersSql, status)
+
+	if err != nil {
+		logger.Error("Error occurred while querying customer table" + err.Error())
+	}
+	customers := make([]Customer, 0)
+	for rows.Next() {
+		var customer Customer
+		err := rows.Scan(&customer.ID, &customer.Name, &customer.City, &customer.ZipCode, &customer.DateOfBirth, &customer.Status)
+		if err != nil {
+			logger.Error("Error occurred while scanning customers" + err.Error())
+			return nil, errs.NewNotFoundError("Customers not found")
+		}
+
+		customers = append(customers, customer)
+	}
+	return customers, nil
 }
 
 func NewCustomerRepositoryDb() CustomerRepositoryDb {

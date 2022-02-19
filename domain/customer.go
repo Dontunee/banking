@@ -1,5 +1,7 @@
 package domain
 
+import "github.com/Dontunee/banking/errs"
+
 type Customer struct {
 	ID          int
 	Name        string
@@ -13,6 +15,7 @@ type Customer struct {
 //repository interface
 
 type ICustomerRepository interface {
-	FindAll() ([]Customer, error)
-	FindCustomerById(id string) (*Customer, error)
+	FindAll() ([]Customer, *errs.AppError)
+	FindCustomerById(id string) (*Customer, *errs.AppError)
+	FindCustomersByStatus(status bool) ([]Customer, *errs.AppError)
 }
