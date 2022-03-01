@@ -6,7 +6,6 @@ import (
 	"github.com/Dontunee/banking/logger"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
-	"time"
 )
 
 type CustomerRepositoryDb struct {
@@ -17,7 +16,7 @@ func (repository CustomerRepositoryDb) FindAll() ([]Customer, *errs.AppError) {
 	findAllSql := "select customer_id, name, city, zipcode, date_of_birth,status from customers"
 	customers := make([]Customer, 0)
 
-	err = repository.client.Select(&customers, findAllSql)
+	err := repository.client.Select(&customers, findAllSql)
 	if err != nil {
 		logger.Error("Error occurred while querying customers" + err.Error())
 		return nil, errs.NewNotFoundError("Customers not found")
@@ -45,23 +44,13 @@ func (repository CustomerRepositoryDb) FindCustomersByStatus(status bool) ([]Cus
 	customersSql := "select customer_id, name, city, zipcode, date_of_birth, status from customers where status = ?"
 	customers := make([]Customer, 0)
 
-	err := repository.client.Select(&customers, customersSql)
+	err := repository.client.Select(&customers, customersSql, status)
 	if err != nil {
 		logger.Error("Error occurred while querying customer table" + err.Error())
 	}
 	return customers, nil
 }
 
-func NewCustomerRepositoryDb() CustomerRepositoryDb {
-	client, err := sqlx.Open("mysql", "root:password10$@tcp(localhost:3306)/banking")
-
-	if err != nil {
-		panic(err)
-	}
-
-	//see "Important settings"  section
-	client.SetConnMaxLifetime(time.Minute * 3)
-	client.SetMaxOpenConns(10)
-	client.SetMaxIdleConns(10)
-	return CustomerRepositoryDb{client}
+func NewCustomerRepositoryDb(dbClient *sqlx.DB) CustomerRepositoryDb {
+	return CustomerRepositoryDb{dbClient}
 }
