@@ -60,10 +60,28 @@ func Start() {
 
 	//define the route and handler which provides response and brings request from client
 
-	router.HandleFunc("/customers", customerHandler.getAllCustomers).Methods(http.MethodGet)
-	router.HandleFunc("/customers/{customer_id:[0-9]+}", customerHandler.getCustomerById).Methods(http.MethodGet)
-	router.HandleFunc("/customers/{customer_id:[0-9]+}/account", accountHandler.createAccount).Methods(http.MethodPost)
-	router.HandleFunc("/transaction/create", transactionHandler.createTransaction).Methods(http.MethodPost)
+	router.
+		HandleFunc("/customers", customerHandler.getAllCustomers).
+		Methods(http.MethodGet).
+		Name("GetAllCustomers")
+
+	router.
+		HandleFunc("/customers/{customer_id:[0-9]+}", customerHandler.getCustomerById).
+		Methods(http.MethodGet).
+		Name("GetCustomer")
+
+	router.
+		HandleFunc("/customers/{customer_id:[0-9]+}/account", accountHandler.createAccount).
+		Methods(http.MethodPost).
+		Name("NewAccount")
+
+	router.
+		HandleFunc("/transactions/create/{account_id:[0-9]+}", transactionHandler.createTransaction).
+		Methods(http.MethodPost).
+		Name("NewTransaction")
+
+	authMiddleware := AuthMiddleware{domain.NewAuthRepository()}
+	router.Use(authMiddleware.authorizationHandler())
 
 	// starts the server on asn ip and port and use default multiplexer
 

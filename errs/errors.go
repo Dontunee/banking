@@ -20,6 +20,13 @@ func (error AppError) ReturnMessage() *AppError {
 	}
 }
 
+func (error AppError) AsMessage() interface{} {
+	if error.Message != "" {
+		return true
+	}
+	return false
+}
+
 func NewUnexpectedError(message string) *AppError {
 	return &AppError{
 		Message: message,
