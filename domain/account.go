@@ -14,6 +14,7 @@ type Account struct {
 	Status      bool
 }
 
+//go:generate mockgen -destination=../mocks/domain/mockAccountRepository.go -package=domain github.com/Dontunee/banking/domain IAccountRepository
 type IAccountRepository interface {
 	Create(account Account) (*Account, *errs.AppError)
 	UpdateBalance(amount float64, accountId string) (*errs.AppError, bool)

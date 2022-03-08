@@ -17,7 +17,7 @@ type TransactionService struct {
 }
 
 func (transactionService TransactionService) ProcessTransaction(request dto.TransactionRequest) (*dto.TransactionResponse, *errs.AppError) {
-	err, valid := request.IsValid()
+	err, valid := request.Validate()
 	if !valid {
 		return nil, errs.NewValidationError("request is not valid:" + err.Message)
 	}

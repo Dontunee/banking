@@ -6,6 +6,7 @@ import (
 	"github.com/Dontunee/banking/errs"
 )
 
+//go:generate mockgen -destination=../mocks/service/mockCustomerService.go -package=service github.com/Dontunee/banking/service ICustomerService
 type ICustomerService interface {
 	GetAllCustomer() ([]dto.CustomerResponse, *errs.AppError)
 	GetCustomerById(id string) (*dto.CustomerResponse, *errs.AppError)

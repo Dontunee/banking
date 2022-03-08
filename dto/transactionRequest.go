@@ -2,7 +2,6 @@ package dto
 
 import (
 	"github.com/Dontunee/banking/errs"
-	"strings"
 )
 
 type TransactionRequest struct {
@@ -11,8 +10,8 @@ type TransactionRequest struct {
 	TransactionType string  `json:"transaction_type"`
 }
 
-func (request TransactionRequest) IsValid() (*errs.AppError, bool) {
-	if strings.ToLower(request.TransactionType) != "withdrawal" && strings.ToLower(request.TransactionType) != "deposit" {
+func (request TransactionRequest) Validate() (*errs.AppError, bool) {
+	if !request.IsTransactionTypeWithdrawal() && !request.IsTransactionTypeDeposit() {
 		return errs.NewValidationError("Transaction type can only be withdrawal or deposit"), false
 	}
 	if request.Amount < 0 {
@@ -32,8 +31,9 @@ func (request TransactionRequest) CanWithdraw(amount float64, balance float64) (
 }
 
 func (request TransactionRequest) IsTransactionTypeWithdrawal() bool {
-	if request.TransactionType == "withdrawal" {
-		return true
-	}
-	return false
+	return request.TransactionType == "withdrawal"
+}
+
+func (request TransactionRequest) IsTransactionTypeDeposit() bool {
+	return request.TransactionType == "deposit"
 }
